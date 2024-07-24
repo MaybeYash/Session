@@ -1,11 +1,7 @@
 from flask import Flask, request, jsonify, render_template
-from telethon.sync import TelegramClient
-from telethon.sessions import StringSession
+from pyrogram import Client
 
 app = Flask(__name__)
-
-api_id = '29400566'
-api_hash = '8fd30dc496aea7c14cf675f59b74ec6f'
 
 @app.route('/')
 def index():
@@ -13,14 +9,21 @@ def index():
 
 @app.route('/generate_session', methods=['POST'])
 def generate_session():
+    api_id = request.json.get('api_id')
+    api_hash = request.json.get('api_hash')
     phone_number = request.json.get('phone_number')
-    if not phone_number:
-        return jsonify({'error': 'Phone number is required'}), 400
-    
-    with TelegramClient(StringSession(), api_id, api_hash) as client:
-        client.start(phone=phone_number)
-        session_string = client.session.save()
+
+    if not api_id or not api_hash or not phone_number:
+        return jsonify({'error': 'All fields are required'}), 400
+
+    try:
+        app = Client("my_account", api_id=api_id, api_hash=api_hash, phone_number=phone_number)
+        app.start()
+        session_string = app.export_session_string()
+        app.stop()
         return jsonify({'string_session': session_string})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
