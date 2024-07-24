@@ -11,6 +11,14 @@
         <h1>Telegram String Session Generator</h1>
         <form id="sessionForm">
             <div class="form-group">
+                <label for="apiId">API ID:</label>
+                <input type="text" id="apiId" name="apiId" required>
+            </div>
+            <div class="form-group">
+                <label for="apiHash">API Hash:</label>
+                <input type="text" id="apiHash" name="apiHash" required>
+            </div>
+            <div class="form-group">
                 <label for="phoneNumber">Phone Number:</label>
                 <input type="text" id="phoneNumber" name="phoneNumber" required>
             </div>
@@ -22,6 +30,8 @@
         document.getElementById('sessionForm').addEventListener('submit', function(event) {
             event.preventDefault();
 
+            const apiId = document.getElementById('apiId').value;
+            const apiHash = document.getElementById('apiHash').value;
             const phoneNumber = document.getElementById('phoneNumber').value;
 
             fetch('/generate_session', {
@@ -29,7 +39,7 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ phone_number: phoneNumber })
+                body: JSON.stringify({ api_id: apiId, api_hash: apiHash, phone_number: phoneNumber })
             })
             .then(response => response.json())
             .then(data => {
